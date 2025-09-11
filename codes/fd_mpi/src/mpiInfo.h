@@ -102,15 +102,15 @@ class mpiInfo
       }
     if ( jPE > 0      )
       {
-	/* TO-DO in Lab */
+	nei_s = myPE - nPEx ; /* TO-DO in Lab */
       }
     if ( iPE < nPEx-1 )
       {
-	/* TO-DO in Lab */
+	nei_e = myPE + 1 ; /* TO-DO in Lab */
       }
     if ( jPE < nPEy-1 )
       {
-	/* TO-DO in Lab */
+	nei_n = myPE + nPEx ; /* TO-DO in Lab */
       }
 
     countx = nRealx + 2;
@@ -144,33 +144,33 @@ class mpiInfo
 	// Parallel communication on PE Boundaries       ** See fd.h for tLOOP and sLOOP macros **
 	// ----------------------------------------------
 
-	// (1.1) Put values into communication arrays
+  // (1.1) Put values into communication arrays
 	
-	sLOOP phiSend_n[s] = Solution[ /* TO-DO in Lab */ ];
-	sLOOP phiSend_s[s] = Solution[ /* TO-DO in Lab */ ];
-	tLOOP phiSend_w[t] = Solution[ /* TO-DO in Lab */ ];
-	tLOOP phiSend_e[t] = Solution[ /* TO-DO in Lab */ ];
+	sLOOP phiSend_n[s] = Solution[ pid(s,nRealy-1) ];  /* Solution[ /* TO-DO in Lab */
+	sLOOP phiSend_s[s] = Solution[ pid(s,2) ];
+	tLOOP phiSend_w[t] = Solution[ pid(2,t) ];
+	tLOOP phiSend_e[t] = Solution[ pid(nRealx-1,t) ];
 
 	// (1.2) Send them to neighboring PEs
 
-	if ( nei_n >= 0 )  err = MPI_Isend( /* TO-DO in Lab */ );
-	if ( nei_s >= 0 )  err = MPI_Isend( /* TO-DO in Lab */ );
-	if ( nei_e >= 0 )  err = MPI_Isend( /* TO-DO in Lab */ );
-	if ( nei_w >= 0 )  err = MPI_Isend( /* TO-DO in Lab */ );
+	if ( nei_n >= 0 )  err = MPI_Isend( phiSend_n, countx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &request); /* MPI_Isend( /* TO-DO in Lab */
+	if ( nei_s >= 0 )  err = MPI_Isend( phiSend_s, countx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &request);
+	if ( nei_e >= 0 )  err = MPI_Isend( phiSend_e, county, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &request);
+	if ( nei_w >= 0 )  err = MPI_Isend( phiSend_w, county, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &request);
 
 	// (1.3) Receive values from neighobring PEs' physical boundaries.
 	
-	if ( nei_n >= 0 ) { err = MPI_Irecv(  /* TO-DO in Lab */  );   MPI_Wait(&request,&status); } 
-	if ( nei_s >= 0 ) { err = MPI_Irecv(  /* TO-DO in Lab */  );   MPI_Wait(&request,&status); } 
-	if ( nei_e >= 0 ) { err = MPI_Irecv(  /* TO-DO in Lab */  );   MPI_Wait(&request,&status); } 
-	if ( nei_w >= 0 ) { err = MPI_Irecv(  /* TO-DO in Lab */  );   MPI_Wait(&request,&status); } 
+	if ( nei_n >= 0 ) { err = MPI_Irecv( phiRecv_n, countx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &request);   MPI_Wait(&request,&status); } /* err = MPI_Irecv(  /* TO-DO in Lab */
+	if ( nei_s >= 0 ) { err = MPI_Irecv( phiRecv_s, countx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &request);   MPI_Wait(&request,&status); } 
+	if ( nei_e >= 0 ) { err = MPI_Irecv( phiRecv_e, county, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &request);   MPI_Wait(&request,&status); } 
+	if ( nei_w >= 0 ) { err = MPI_Irecv( phiRecv_w, county, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &request);   MPI_Wait(&request,&status); } 
+	
 	
 	// (1.4) Update BCs using the exchanged information
 	
-	if ( nei_n >= 0 ) sLOOP b[ pid ( /* TO-DO in Lab */ ] = /* TO-DO in Lab */
-	if ( nei_s >= 0 ) sLOOP b[ pid ( /* TO-DO in Lab */ ] = /* TO-DO in Lab */
-	if ( nei_e >= 0 ) tLOOP b[ pid ( /* TO-DO in Lab */ ] = /* TO-DO in Lab */
-	if ( nei_w >= 0 ) tLOOP b[ pid ( /* TO-DO in Lab */ ] = /* TO-DO in Lab */
+	if ( nei_n >= 0 ) sLOOP b[ pid ( s, nRealy+1) ] = phiRecv_n[s]; /* LOOP b[ pid ( /* TO-DO in Lab */ /* =  TO-DO in Lab */
+	if ( nei_e >= 0 ) tLOOP b[ pid ( nRealx+1, t) ] = phiRecv_e[t];
+	if ( nei_w >= 0 ) tLOOP b[ pid ( 0, t) ] = phiRecv_w[t];
   }
   
   int pid(int i,int j) { return (i+1) + (j)*(nRealx+2); }  

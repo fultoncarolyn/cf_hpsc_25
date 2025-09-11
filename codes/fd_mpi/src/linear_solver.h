@@ -61,7 +61,7 @@ void SolveLinearSystem(int max_iter , VD RHS, VD &Solution , mpiInfo &myMPI )
 	// (1) Parallel communication on PE Boundaries
 	// ----------------------------------------------
 
-	/* TO-DO in Lab */
+	myMPI.ExchangeBoundaryInfo(Solution, b); /* TO-DO in Lab */
 
 	// ----------------------------------------------
 	// (2) Convergence

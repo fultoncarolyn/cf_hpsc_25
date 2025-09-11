@@ -21,8 +21,7 @@
 
 #include "mpi.h"
 #include "fd.h"
-#include "mpiInfo.h"
-
+#include "mpiInfo.h
 
 //  ==
 //  ||
@@ -177,9 +176,9 @@ public:
     // will not be used in serial cases and will get overwritten during parallel communication.
 
     ApplyBCs(   0     , nRealx+1 ,                  0 ,                 0 , phiB );
-    ApplyBCs(   0     , nRealx+1 , /* TO-DO in Lab */ , /* TO-DO in Lab */, phiT );
-    ApplyBCs(   0     ,        0 , /* TO-DO in Lab */ , /* TO-DO in Lab */, phiL );
-    ApplyBCs(nRealx+1 , nRealx+1 ,                  0 , nRealy+1          , phiR );
+    ApplyBCs(   0     , nRealx+1 ,         nRealy + 1 ,        nRealy + 1 , phiT ); /* TO-DO in Lab  ,  TO-DO in Lab */
+    ApplyBCs(   0     ,        0 ,                  0 ,                 0 ,  phiL );
+    ApplyBCs(nRealx+1 , nRealx+1 ,                  0 ,          nRealy+1 ,  phiR );
     
     // Now, apply actual BCs
     
@@ -282,7 +281,7 @@ int main(int argc, char *argv[])
    double length_y = 1./nPEy;
 
    x0 =  length_x*myMPI.iPE;   x1 = x0 + length_x;
-   y0 =  /* TO-DO in Lab */;   y1 = /* TO-DO in Lab */;
+   y0 =  length_y*myMPI.iPE;   y1 = y0 + length_y; /* TO-DO in Lab (y0 and y1) */
 
    cout << "myPE: " << myMPI.myPE << " x0 = " << x0 << endl;
    cout << "myPE: " << myMPI.myPE << " x1 = " << x1 << endl;
