@@ -43,5 +43,5 @@ endif
 
 
 fp: fp.cpp fp.h particle_plotter.h mpiInfo.h particles.h
-	$(COMPILER) fp.cpp -g -o fp
+	$(COMPILER) fp.cpp -g -lstdc++ -o fp
 
