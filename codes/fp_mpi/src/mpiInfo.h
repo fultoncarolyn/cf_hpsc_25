@@ -231,7 +231,7 @@ class mpiInfo
 
     // (7) Put in vector form so they can be added to PTCL.  These arrays are 1-based.
 
-    int Np = 0;  for ( int i = 0 ; i < /* TO-DO in Lab */ ; ++i ) if ( Gptcl_PE[i] == myPE ) ++Np; 
+    int Np = 0;  for ( int i = 0 ; i < (maxToSend * numPE) ; ++i ) if ( Gptcl_PE[i] == myPE ) ++Np; 
     
     VD  std_add_x  ;  std_add_x.resize  ( Np+1 );
     VD  std_add_y  ;  std_add_y.resize  ( Np+1 );
