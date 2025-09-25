@@ -64,14 +64,17 @@ class mpiInfo
   void GridDecomposition(int _nPEx, int _nPEy, int nCellx , int nCelly)
   {
 
+    // local grid size
     nRealx = nCellx;
     nRealy = nCelly;
 
     // Store and check incoming processor counts
     
+    // processor grid shape
     nPEx = _nPEx;
     nPEy = _nPEy;
     
+    // confirm grid results in allocated processors numPE
     if (nPEx*nPEy != numPE)
       {
     	if ( myPE == 0 ) cout << "Fatal Error:  Number of PEs in x-y directions do not add up to numPE" << endl;
@@ -301,59 +304,49 @@ class mpiInfo
   
   void PEsum( VD &field )
   {
-    /* TO-DO in Lab */
-     MPI_Request reqs[8];
-    int r = 0;
+    // Memory arrays to store values to send to neighboors
+        iLOOP fieldSend_n[i] = 0. ;
+        iLOOP fieldSend_s[i] = 0. ;
+        jLOOP fieldSend_e[j] = 0. ;
+        jLOOP fieldSend_w[j] = 0. ;
 
-    // ---------------------------------------------------
-    // (1) Pack boundary data from this PE into send buffers
-    // ---------------------------------------------------
-    sLOOP phiSend_n[s] = field[ pid(s, nRealy-1) ];  // last real row
-    sLOOP phiSend_s[s] = field[ pid(s, 1)        ];  // first real row
-    tLOOP phiSend_w[t] = field[ pid(1,        t) ];  // first real column
-    tLOOP phiSend_e[t] = field[ pid(nRealx-1,  t) ]; // last real column
+        // for the NORTH and SOUTH use i loops...
+        // populate send arrays
+        iLOOP fieldSend_n[i] = field[ pid( i , nRealy ) ];
+        iLOOP fieldSend_s[i] = field[ pid( i , 1      ) ];
 
-    // ---------------------------------------------------
-    // (2) Start non-blocking sends to neighbors
-    // ---------------------------------------------------
-    if (nei_n >= 0) MPI_Isend(phiSend_n, countx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_s >= 0) MPI_Isend(phiSend_s, countx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_e >= 0) MPI_Isend(phiSend_e, county, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_w >= 0) MPI_Isend(phiSend_w, county, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &reqs[r++]);
+        // send arrays
+        if (nei_n >= 0) err = MPI_Isend(fieldSend_n, nRealx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &request);
+        if (nei_s >= 0) err = MPI_Isend(fieldSend_s, nRealx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &request);
 
-    // ---------------------------------------------------
-    // (3) Start non-blocking receives from neighbors
-    // ---------------------------------------------------
-    if (nei_n >= 0) MPI_Irecv(phiRecv_n, countx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_s >= 0) MPI_Irecv(phiRecv_s, countx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_e >= 0) MPI_Irecv(phiRecv_e, county, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &reqs[r++]);
-    if (nei_w >= 0) MPI_Irecv(phiRecv_w, county, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &reqs[r++]);
+        // recieve arrays
+        if (nei_n > 0) { err = MPI_Irecv(fieldRecv_n, nRealx, MPI_DOUBLE, nei_n, tag, MPI_COMM_WORLD, &request ); MPI_Wait(&request, &status); }
+        if (nei_s > 0) { err = MPI_Irecv(fieldRecv_s, nRealx, MPI_DOUBLE, nei_s, tag, MPI_COMM_WORLD, &request ); MPI_Wait(&request, &status); }
 
-    // ---------------------------------------------------
-    // (4) Wait for all comms to complete
-    // ---------------------------------------------------
-    if (r > 0) MPI_Waitall(r, reqs, MPI_STATUSES_IGNORE);
+        // sum field values
+        iLOOP field[ pid( i , nRealy ) ] += fieldRecv_n[i] ;
+        iLOOP field[ pid( i ,	   1 ) ] += fieldRecv_s[i] ;
 
-    // ---------------------------------------------------
-    // (5) Sum contributions from neighbors into our boundary cells
-    //     - These are the shared nodes between PEs
-    // ---------------------------------------------------
-    if (nei_n >= 0)
-        sLOOP field[ pid(s, nRealy-1) ] += phiRecv_n[s]; // top real row
+        // repeat now for EAST and WEST using j loops
+        // populate send arrays
+        jLOOP fieldSend_e[j] = field[ pid( nRealx , j ) ];
+        jLOOP fieldSend_w[j] = field[ pid( 1	  , j ) ];
 
-    if (nei_s >= 0)
-        sLOOP field[ pid(s, 1) ] += phiRecv_s[s];        // bottom real row
+        // send arrays
+        if (nei_e >= 0) err = MPI_Isend(fieldSend_e, nRealy, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &request);
+        if (nei_w >= 0) err = MPI_Isend(fieldSend_w, nRealy, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &request);
 
-    if (nei_e >= 0)
-        tLOOP field[ pid(nRealx-1, t) ] += phiRecv_e[t]; // right real column
+        // recieve arrays
+        if (nei_e > 0) { err = MPI_Irecv(fieldRecv_e, nRealy, MPI_DOUBLE, nei_e, tag, MPI_COMM_WORLD, &request ); MPI_Wait(&request, &status); }
+        if (nei_w > 0) { err = MPI_Irecv(fieldRecv_w, nRealy, MPI_DOUBLE, nei_w, tag, MPI_COMM_WORLD, &request ); MPI_Wait(&request, &status); }
 
-    if (nei_w >= 0)
-        tLOOP field[ pid(1, t) ] += phiRecv_w[t];        // left real column
+        // sum field values
+        jLOOP field[ pid( nRealx , j ) ] += fieldRecv_e[j] ;
+        jLOOP field[ pid( 1	 , j ) ] += fieldRecv_w[j] ;
+    }
 
-  }
-
-
-  
+  // indexing by mapping 2D coordinates (i,j) to 1D array
+  // note: nRealx+2 accounts for ghost layers
   int pid(int i,int j) { return (i+1) + (j)*(nRealx+2); }  
 
 };
