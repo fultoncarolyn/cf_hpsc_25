@@ -1,0 +1,10 @@
+
+
+./run_case  10 1
+./run_case  20 1
+./run_case  40 1
+./run_case  80 1
+
+
+
+

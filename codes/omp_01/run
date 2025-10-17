@@ -1,0 +1,11 @@
+rm tty*
+
+clear
+
+./omp_10 > tty_omp_10
+./omp_01 > tty_omp_01
+
+
+
+
+

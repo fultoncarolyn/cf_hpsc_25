@@ -1,0 +1,16 @@
+rm *.plt
+
+#echo
+#echo
+#echo Number of cells: $1
+#echo Number of threads: $2
+#echo
+#echo
+
+./omp -nCell $1 -nTH $2
+
+
+
+
+
+

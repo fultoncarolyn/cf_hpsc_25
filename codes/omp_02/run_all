@@ -1,0 +1,20 @@
+
+
+./omp -ncell 10 -nTH 1
+./omp -ncell 10 -nTH 2
+./omp -ncell 10 -nTH 4
+./omp -ncell 10 -nTH 8
+./omp -ncell 10 -nTH 16
+
+
+./omp -ncell 80 -nTH 1
+./omp -ncell 80 -nTH 2
+./omp -ncell 80 -nTH 4
+./omp -ncell 80 -nTH 8
+./omp -ncell 80 -nTH 16
+
+./omp -ncell 200 -nTH 1
+./omp -ncell 200 -nTH 2
+./omp -ncell 200 -nTH 4
+./omp -ncell 200 -nTH 8
+./omp -ncell 200 -nTH 16

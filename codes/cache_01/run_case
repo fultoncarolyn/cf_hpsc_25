@@ -1,0 +1,8 @@
+
+echo Running $1 $2...
+
+valgrind --tool=cachegrind --log-file="cachegrind.$1_$2.log" --cachegrind-out-file="cachegrind.$1_$2.out" ./main -n $1 -r $2 
+valgrind --tool=callgrind  --log-file="callgrind.$1_$2.log"  --callgrind-out-file="callgrind.$1_$2.out"   ./main -n $1 -r $2
+
+
+callgrind_annotate --auto=yes cachegrind.$1_$2.out >  cachegrind.$1_$2.txt
