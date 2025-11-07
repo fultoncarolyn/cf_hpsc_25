@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
    if ( restart )
      {
        MPI_Barrier(MPI_COMM_WORLD);
-       MESH.readRestart ( /* TO-DO in Lab */ ); 
+       MESH.readRestart ( phi_restart.bin ); 
      }
 
    for ( double time = tStart ; time <= tEnd ; time += dt )
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	   timeSinceLastPlot = 0.;
 	   
 	   MPI_Barrier(MPI_COMM_WORLD);
-	   MESH.writeRestart( /* TO-DO in Lab */ ); 
+	   MESH.writeRestart( phi_restart.bin ); 
 
 	   ++count;
 	 }

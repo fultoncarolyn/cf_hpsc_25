@@ -34,8 +34,8 @@ void writeRestart(double &time             ,
    //    [2] Time since last plot was written
    
    headerDbls[0] = time;
-   headerDbls[1] = /* TO-DO in Lab */  ;
-   headerDbls[2] = /* TO-DO in Lab */  ;
+   headerDbls[1] = dt  ;
+   headerDbls[2] = timeSinceLastPlot  ;
 
    // (B) Integers variables to be saved in the dump:
    //
@@ -45,16 +45,16 @@ void writeRestart(double &time             ,
    //    [3] The number of plots files already written
    
    headerInts[0] = nCellx * myMPI.nPEx;  
-   headerInts[1] = /* TO-DO in Lab */; 
+   headerInts[1] = nCelly * myMPI.nPEy; 
    
    if ( solver == "jacobi" ) headerInts[2] = 1;   
    if ( solver == "cg"     ) headerInts[2] = 2;   
 
-   headerInts[3] = /* TO-DO in Lab */;
+   headerInts[3] = count;
    
    // Write the dump
 
-   write_mpiio_dump(/* TO-DO in Lab */  );    
+   write_mpiio_dump(headerDbls, headerInts, myMPI);    
 }
 
 
@@ -79,7 +79,7 @@ void readRestart(double &time             ,
 
    // Read the dump
 
-   read_mpiio_dump( /* TO-DO in Lab */ );  
+   read_mpiio_dump( headerDbls, headerInts, myMPI );  
 
    // ----------------------------------------------------------------------------------------------------
    // Retrieve simulation setup variables and a few scalar state variables from arrays
@@ -91,9 +91,9 @@ void readRestart(double &time             ,
    //    [1] Time step
    //    [2] Time since last plot was written
 
-   time              = /* TO-DO in Lab */;
-   dt                = /* TO-DO in Lab */;
-   timeSinceLastPlot = /* TO-DO in Lab */;
+   time              = headerDbls[0];
+   dt                = headerDbls[1];
+   timeSinceLastPlot = headerDbls[2];
 
    
    // (B) Integers variables to be saved in the dump:
@@ -103,8 +103,8 @@ void readRestart(double &time             ,
    //    [2] An integer reflection the choice of linear solver
    //    [3] The number of plots files already written
    
-   nCellx = headerInts[0] / myMPI.nPEx         ; 
-   nCelly = /* TO-DO in Lab */ ;
+   nCellx = headerInts[0] / myMPI.nPEx  ; 
+   nCelly = headerInts[1] / myMPI.nPEy  ;
    
    if ( headerInts[2] == 1 ) solver = "jacobi" ; 
    if ( headerInts[2] == 2 ) solver = "cg"     ;
@@ -164,8 +164,8 @@ void write_mpiio_dump(VD &headerDbls , VI &headerInts , mpiInfo &myMPI)
   
   if ( myPE == 0 ) 
     {
-      for ( int i = 0 ; i < headerDbls.size() ; ++i ) write_mpiio_double( fh , /* TO-DO in Lab */ );  
-      for ( int i = 0 ; i < headerInts.size() ; ++i ) write_mpiio_int   ( fh ,  /* TO-DO in Lab */);  
+      for ( int i = 0 ; i < headerDbls.size() ; ++i ) write_mpiio_double( fh , headerDbls[i], offset);  
+      for ( int i = 0 ; i < headerInts.size() ; ++i ) write_mpiio_int   ( fh , headerDbls[i], offset);  
     }
   MPI_Bcast( &offset , 1 , MPI_INT , 0 ,  MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
@@ -286,8 +286,8 @@ void read_mpiio_dump(VD &headerDbls , VI &headerInts , mpiInfo &myMPI)
     MPI_Offset offset = 0; 
     MPI_Status  status;
     
-    for ( int i = 0 ; i < headerDbls.size() ; ++i ) read_mpiio_double( fh ,  /* TO-DO in Lab */ ); 
-    for ( int i = 0 ; i < headerInts.size() ; ++i ) read_mpiio_int   ( fh ,  /* TO-DO in Lab */ ); 
+    for ( int i = 0 ; i < headerDbls.size() ; ++i ) read_mpiio_double( fh ,  headerDbls[i], offset ); 
+    for ( int i = 0 ; i < headerInts.size() ; ++i ) read_mpiio_int   ( fh ,  headerDbls[i], offset ); 
   
     MPI_Barrier(MPI_COMM_WORLD);
 
