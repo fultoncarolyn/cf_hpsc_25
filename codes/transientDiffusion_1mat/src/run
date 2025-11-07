@@ -1,0 +1,41 @@
+rm -rf *.plt
+rm -rf phi_dump.bin
+rm -rf pc_phi_*
+
+#--------------------------------------------------------------------------------------------------------
+# 
+#  16 PE then 9 PE restart then 1 PE restart then 16 PE restart.
+#
+#  12 staggered cells, 13 cells, 13 unknowns
+#
+#
+#
+#    |                           |                           |                           |   
+#    |                           |                           |                           |   
+#    |                           |                           |                           |   <--- divided by 3 PE
+#    |                           |                           |                           |        4 staggered cells, 5 cells, 5 unknowns
+#    +------+------+------+------+------+------+------+------+------+------+------+------+       
+#    |                    |                    |                    |                    |
+#    |                    |                    |                    |                    |   <--- divided by 4 PE
+#    |                    |                    |                    |                    |        3 staggered cells, 4 cells, 4 unknowns
+#
+#--------------------------------------------------------------------------------------------------------
+
+mpirun --oversubscribe -n 16 ./transientDiffusion -nPEx 4 -nPEy 4 -nCellx  4 -nCelly 4 -solver jacobi -tEnd .03   -dt .001 -tPlot .001 | tee tmp
+
+read -p "First 16PE done.  Press enter to continue"
+
+mpirun --oversubscribe -n 9 ./transientDiffusion  -nPEx 3 -nPEy 3 -nCellx  5 -nCelly 5 -solver jacobi -tEnd .06   -dt .001 -tPlot .001 -restart | tee tmp
+
+read -p "First 9PE done.  Press enter to continue"
+
+mpirun --oversubscribe -n 1 ./transientDiffusion  -nPEx 1 -nPEy 1 -nCellx  13 -nCelly 13 -solver jacobi -tEnd .09  -dt .001 -tPlot .001 -restart     
+  
+read -p "1PE  done.  Press enter to continue"
+
+mpirun --oversubscribe -n 16 ./transientDiffusion -nPEx 4 -nPEy 4 -nCellx  4 -nCelly 4 -solver jacobi -tEnd .12   -dt .001 -tPlot .001 -restart     
+
+read -p "Last 16PE  done.  Press enter to continue"
+
+./writePlotCmd_py3.py
+

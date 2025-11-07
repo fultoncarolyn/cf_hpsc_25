@@ -1,0 +1,13 @@
+*.plt
+*~
+solvers
+cachegrind.out.*
+callgrind.out.*
+valgrindOutput
+vg
+
+
+
+
+
+
