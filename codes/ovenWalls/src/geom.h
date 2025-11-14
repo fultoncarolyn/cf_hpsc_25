@@ -14,9 +14,9 @@
 
 void cross( double *v , double *w , double *c )
 {
-  c[0] = /* TO-DO in Lab */ ;
-  c[1] = /* TO-DO in Lab */ ;
-  c[2] = /* TO-DO in Lab */ ;
+  c[0] = v[1] * w[2] - v[2] * w[1] ;
+  c[1] = v[0] * w[2] - v[2] * w[0] ;
+  c[2] = v[0] * w[1] - v[1] * w[0] ;
   return;
 }
 //  ==
@@ -27,7 +27,7 @@ void cross( double *v , double *w , double *c )
 
 double dot( double *v , double *w )
 {
-  return /* TO-DO in Lab */ ;
+  return (v[0] * w[0] + v[1] * w[1] + v[2] * w[2]) ;
 }
 
 
@@ -51,7 +51,7 @@ int Intersect_LinePlane( double *L0 , double *L , double *p0 , double *n , doubl
 
   // Dot the line's vector with the plane's normal:
   
-  double dotProduct = /* TO-DO in Lab */ ;
+  double dotProduct = dot( L , n ) ;
 
   if ( fabs(dotProduct) < 1.e-10 ) return -1;
   
@@ -59,13 +59,13 @@ int Intersect_LinePlane( double *L0 , double *L , double *p0 , double *n , doubl
 
   double p0L0[3]; kLOOP p0L0[k] = p0[k] - L0[k]; 
   
-  double d = dot( p0L0 , n ) / /* TO-DO in Lab */; 
+  double d = dot( p0L0 , n ) / dot( L , n ); 
 
   // Compute the intersection point
   
-  xyzInt[0] = /* TO-DO in Lab */ ;
-  xyzInt[1] = /* TO-DO in Lab */ ;
-  xyzInt[2] = /* TO-DO in Lab */ ;
+  xyzInt[0] = L0[0] + d * L[0];
+  xyzInt[1] = L0[1] + d * L[1] ;
+  xyzInt[2] = L0[2] + d * L[2] ;
 
   return 1;
 }
@@ -99,13 +99,13 @@ bool insideCorner( double *P , double *A, double *B , double *C )
 
   kLOOP
     {
-      vAB[k] =  /* TO-DO in Lab */ ;
-      vCA[k] =  /* TO-DO in Lab */ ;
-      vAP[k] =  /* TO-DO in Lab */ ;
+      vAB[k] =  B[k] - A[k] ;
+      vCA[k] =  A[k] - C[k] ;
+      vAP[k] =  P[k] - A[k] ;
     }
 
-  double cB[3] ; cross( /* TO-DO in Lab */ ); 
-  double cC[3] ; cross( /* TO-DO in Lab */ ); 
+  double cB[3] ; cross( vCA, vAP, cB ); 
+  double cC[3] ; cross( vAB, vAP, cC ); 
 
   if ( dot(cB,cC) >= 0 )
     {
@@ -128,9 +128,9 @@ bool insideCorner( double *P , double *A, double *B , double *C )
 int insideQuad( double *Pt , double *Q0 , double *Q1 , double *Q2 , double *Q3 )
 {
   if ( insideCorner ( Pt , Q0 , Q1 , Q3 ) )
-    if ( insideCorner ( Pt , /* TO-DO in Lab */ )
-	 if ( insideCorner ( Pt , /* TO-DO in Lab */ )
-	      if ( insideCorner ( Pt , /* TO-DO in Lab */ ) return 1;
+    if ( insideCorner ( Pt , Q1 , Q0 , Q2 )
+	 if ( insideCorner ( Pt , Q2 , Q1 , Q3 )
+	      if ( insideCorner ( Pt , Q3 , Q2 , Q0 ) return 1;
 
   return 0;
 }
