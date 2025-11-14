@@ -1,0 +1,10 @@
+set term pngcairo font "Arial,12"
+
+set output 'lab12.png'
+
+set view 20, 80
+
+splot 'CylA.plt' w l,\
+      'CylB.plt' w l,\
+      'hit.plt' w l lw 4,\
+      'source.plt' w l lw 4,\
